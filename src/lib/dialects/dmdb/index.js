@@ -27,6 +27,7 @@ DmdbDialect.prototype.supports = _.merge(_.cloneDeep(AbstractDialect.prototype.s
   lock: true,
   forShare: 'LOCK IN SHARE MODE',
   settingIsolationLevelDuringTransaction: false,
+  autoIncrement: { identityInsert: false, defaultValue: false, update: true },
   inserts: {
     ignoreDuplicates: ' IGNORE',
     updateOnDuplicate: ' ON DUPLICATE KEY UPDATE'

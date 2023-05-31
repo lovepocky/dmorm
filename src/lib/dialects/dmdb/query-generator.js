@@ -131,6 +131,7 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
     }
     let res = Utils.joinSQLFragments([
       'CREATE TABLE',
+      ' IF NOT EXISTS',
       table,
       `(${attributesClause})`,
       options.comment && typeof options.comment === 'string' && `COMMENT ${this.escape(options.comment)}`,
@@ -362,9 +363,11 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
       template += ' NOT NULL';
     }
 
-    // if (attribute.autoIncrement) {
-    //   template += ' auto_increment';
-    // }
+    if (attribute.autoIncrement) {
+      // console.log('autoIncrement', attribute)
+      // template += ' auto_increment';
+      template += ' IDENTITY(1, 1)';
+    }
 
     // BLOB/TEXT/GEOMETRY/JSON cannot have a default value
     if (!typeWithoutDefault.has(attributeString)
@@ -502,6 +505,10 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
    */
   getForeignKeysQuery(table, schemaName) {
     const tableName = table.tableName || table;
+    return Utils.joinSQLFragments([
+      // `select * from SYS.DBA_CONSTRAINTS where constraint_type='R' and table_name='${tableName}'`
+      `select * from SYS.DBA_CONSTRAINTS where table_name='${tableName}'`
+    ])
     return Utils.joinSQLFragments([
       'SELECT',
       FOREIGN_KEY_FIELDS,

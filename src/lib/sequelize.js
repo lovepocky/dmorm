@@ -1263,7 +1263,7 @@ Sequelize.prototype.validate = Sequelize.prototype.authenticate;
 /**
  * Sequelize version number.
  */
-Sequelize.version = require('../package.json').version;
+Sequelize.version = require('../../package.json').version;
 
 Sequelize.options = { hooks: {} };
 

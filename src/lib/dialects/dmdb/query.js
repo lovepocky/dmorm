@@ -163,14 +163,15 @@ class Query extends AbstractQuery {
 
       for (const _result of data) {
         const enumRegex = /^enum/i;
-        result[_result.Field] = {
-          type: enumRegex.test(_result.Type) ? _result.Type.replace(enumRegex, 'ENUM') : _result.Type.toUpperCase(),
-          allowNull: _result.Null === 'YES',
-          defaultValue: _result.Default,
-          primaryKey: _result.Key === 'PRI',
-          autoIncrement: Object.prototype.hasOwnProperty.call(_result, 'Extra')
-            && _result.Extra.toLowerCase() === 'auto_increment',
-          comment: _result.Comment ? _result.Comment : null
+        result[_result.COLUMN_NAME] = { 
+          // TODO
+          type: enumRegex.test(_result.DATA_TYPE) ? _result.Type.replace(enumRegex, 'ENUM') : _result.DATA_TYPE.toUpperCase(),
+          allowNull: _result.NULLABLE !== 'N',
+          defaultValue: _result.DATA_DEFAULT,
+          // TODO
+          primaryKey: _result.COLUMN_NAME == 'id',
+          autoIncrement: _result.COLUMN_NAME == 'id',
+          comment: null,
         };
       }
       return result;
