@@ -313,7 +313,7 @@ class Sequelize {
       keepDefaultTimezone: this.options.keepDefaultTimezone,
       dialectOptions: this.options.dialectOptions
     };
-    console.log("-----------------", this.config.database,this.config.username)
+    // console.log("-----------------", this.config.database,this.config.username)
     let Dialect;
     // Requiring the dialect in a switch-case to keep the
     // require calls static. (Browserify fix)
@@ -618,7 +618,7 @@ class Sequelize {
       
         await this.runHooks('beforeQuery', options, query);
         checkTransaction();
-        console.log("--------------查询节点")
+        // console.log("--------------查询节点")
         return await query.run(sql, bindParameters);
       } finally {
         await this.runHooks('afterQuery', options, query);

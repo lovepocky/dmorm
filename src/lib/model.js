@@ -1298,7 +1298,7 @@ class Model {
     const tableName = this.getTableName(options);
 
     await this.queryInterface.createTable(tableName, attributes, options, this);
-    console.log("------------queryInterface----------")
+    // console.log("------------queryInterface----------")
     if (options.alter) {
       const tableInfos = await Promise.all([
         this.queryInterface.describeTable(tableName, options),

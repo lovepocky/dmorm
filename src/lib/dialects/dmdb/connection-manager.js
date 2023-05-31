@@ -76,7 +76,7 @@ class ConnectionManager extends AbstractConnectionManager {
         database
       } = connectionConfig
       
-      console.log("------------连接--------------", `dm://${user}:${password}@${host}:${port}?useUnicode=true&characterEncoding=utf-8`)
+      // console.log("------------连接--------------", `dm://${user}:${password}@${host}:${port}?useUnicode=true&characterEncoding=utf-8`)
       const pool = await this.lib.createPool({
         connectString: `dm://${user}:${password}@${host}:${port}?useUnicode=true&characterEncoding=utf-8`,
         poolMin: 10,
@@ -86,7 +86,7 @@ class ConnectionManager extends AbstractConnectionManager {
       const connection = await pool.getConnection()
       
       const errorHandler = e => {
-        console.log("-------errorHandler---------", e)
+        // console.log("-------errorHandler---------", e)
         // clean up connect & error event if there is error
         connection.removeListener('connect', connectHandler);
         connection.removeListener('error', connectHandler);
