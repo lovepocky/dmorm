@@ -115,7 +115,7 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
           if (typeof indexName !== 'string') {
             indexName = `uniq_${tableName}_${columns.fields.join('_')}`;
           }
-          attributesClause += `, UNIQUE ${this.quoteIdentifier(indexName)} (${columns.fields.map(field => this.quoteIdentifier(field)).join(', ')})`;
+          attributesClause += `, UNIQUE (${columns.fields.map(field => this.quoteIdentifier(field)).join(', ')})`;
         }
       });
     }
