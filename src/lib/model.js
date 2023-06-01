@@ -1752,7 +1752,7 @@ class Model {
       await this.runHooks('beforeFindAfterOptions', options);
     }
     const selectOptions = { ...options, tableNames: Object.keys(tableNames) };
-    console.log("options", selectOptions)
+    // console.log("options", selectOptions)
     const results = await this.queryInterface.select(this, this.getTableName(selectOptions), selectOptions);
 
     if (options.hooks) {
