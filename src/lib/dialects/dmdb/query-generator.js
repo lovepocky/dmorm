@@ -151,7 +151,7 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
       })
     );
 
-    return `select * from all_tab_columns where Table_Name='${tableName}';`;
+    return `select * from all_tab_columns where Table_Name='${table}';`;
   }
 
   showTablesQuery(database) {
