@@ -80,8 +80,8 @@ class ConnectionManager extends AbstractConnectionManager {
       console.log("------------连接--------------", connectString)
       const pool = await this.lib.createPool({
         connectString,
-        poolMin: 10,
-        poolMax: 30
+        poolMin: config?.pool?.min || 0,
+        poolMax: config?.pool?.min || 5,
       })
       
       const connection = await pool.getConnection()
