@@ -73,11 +73,10 @@ class ConnectionManager extends AbstractConnectionManager {
         port,
         user,
         password,
-        database
+        database,
       } = connectionConfig
 
-      const url = connectionConfig['url']
-      const connectString = url ?? `dm://${user}:${password}@${host}:${port}/${database}?useUnicode=true&characterEncoding=utf-8`
+      const connectString = host.startsWith('dm://') ? host : `dm://${user}:${password}@${host}:${port}/${database}?useUnicode=true&characterEncoding=utf-8`
       console.log("------------连接--------------", connectString)
       const pool = await this.lib.createPool({
         connectString,

@@ -1,6 +1,6 @@
 {
   "name": "sequelize",
-  "version": "6.21.7-dmorm",
+  "version": "6.21.9-dmorm",
   "description": "",
   "main": "index.js",
   "scripts": {
