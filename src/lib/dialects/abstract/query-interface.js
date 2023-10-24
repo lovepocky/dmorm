@@ -247,7 +247,7 @@ class QueryInterface {
     for (const tableName of tableNames) {
       // if tableName is not in the Array of tables names then don't drop it
       if (!skip.includes(tableName.tableName || tableName)) {
-        await this.dropTable(tableName, { ...options, cascade: true } );
+        await this.dropTable(tableName, { ...options, cascade: true });
       }
     }
   }
@@ -405,7 +405,13 @@ class QueryInterface {
 
     options = options || {};
     attribute = this.sequelize.normalizeAttribute(attribute);
-    return await this.sequelize.query(this.queryGenerator.addColumnQuery(table, key, attribute), options);
+    const q = this.queryGenerator.addColumnQuery(table, key, attribute)
+    if (Array.isArray(q)) {
+      for await (let a of q) {
+        await this.sequelize.query(a, options);
+      }
+    } else
+      return await this.sequelize.query(q, options);
   }
 
   /**
@@ -749,19 +755,19 @@ class QueryInterface {
     query = query.replace(/\$/g, '\:')
     let b = []
     for (let item of bind) {
-      b.push({val: item})
+      b.push({ val: item })
     }
     sql.bind = b;
-   
-    
+
+
     sql.query = query
     options.type = QueryTypes.INSERT;
     options.instance = instance;
-  
+
     console.log("--------------------sql1---------------", sql.sql, sql.bind, options)
     const results = await this.sequelize.query(sql, options);
     if (instance) results[0].isNewRecord = false;
-   
+
     return results;
   }
 

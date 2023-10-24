@@ -76,7 +76,7 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
       rowFormat: null,
       ...options
     };
-  
+
     const primaryKeys = [];
     const foreignKeys = {};
     const attrStr = [];
@@ -84,10 +84,10 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
       if (!Object.prototype.hasOwnProperty.call(attributes, attr)) continue;
       const dataType = attributes[attr];
       let match;
-    
+
       if (dataType.includes('PRIMARY KEY')) {
         primaryKeys.push(attr);
-      
+
         if (dataType.includes('REFERENCES')) {
           // MySQL doesn't support inline REFERENCES declarations: move to the end
           match = dataType.match(/^(.+) (REFERENCES.*)$/);
@@ -105,7 +105,7 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
         attrStr.push(`${this.quoteIdentifier(attr)} ${dataType}`);
       }
     }
-  
+
     const table = this.quoteTable(tableName);
     let attributesClause = attrStr.join(', ');
     const pkString = primaryKeys.map(pk => this.quoteIdentifier(pk)).join(', ');
@@ -119,11 +119,11 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
         }
       });
     }
-  
+
     if (pkString.length > 0) {
       attributesClause += `, PRIMARY KEY (${pkString})`;
     }
-  
+
     for (const fkey in foreignKeys) {
       if (Object.prototype.hasOwnProperty.call(foreignKeys, fkey)) {
         attributesClause += `, FOREIGN KEY (${this.quoteIdentifier(fkey)}) ${foreignKeys[fkey]}`;
@@ -165,7 +165,8 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
   }
 
   addColumnQuery(table, key, dataType) {
-    return Utils.joinSQLFragments([
+    // console.log(table, key, dataType, 'addColumnQuery')
+    return [Utils.joinSQLFragments([
       'ALTER TABLE',
       this.quoteTable(table),
       'ADD',
@@ -176,7 +177,12 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
         foreignKey: key
       }),
       ';'
-    ]);
+    ]),
+    dataType.comment ? Utils.joinSQLFragments([
+      'comment on column',
+      this.quoteTable(table), '.', this.quoteIdentifier(key), 'is', `'${dataType.comment}'`, ';'
+    ]) : null
+    ].filter(Boolean)
   }
 
   removeColumnQuery(tableName, attributeName) {
@@ -385,7 +391,7 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
     }
 
     if (attribute.comment) {
-      template += ` COMMENT ${this.escape(attribute.comment)}`;
+      // template += ` COMMENT ${this.escape(attribute.comment)}`;
     }
 
     if (attribute.first) {
