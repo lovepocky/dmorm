@@ -431,7 +431,9 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
     // CREATE INDEX "xx_statistic_pos" ON "xx_statistic"("pos");
     ind = [
       'CREATE',
+      options.unique ? 'UNIQUE' : '',
       'INDEX',
+      'IF NOT EXISTS',
       this.quoteIdentifiers(options.name),
       'ON',
       tableName,
