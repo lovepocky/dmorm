@@ -5,6 +5,7 @@ const Utils = require('../../utils');
 const AbstractQueryGenerator = require('../abstract/query-generator');
 const util = require('util');
 const Op = require('../../operators');
+const Model = require('../../model');
 
 
 const JSON_FUNCTION_REGEX = /^\s*((?:[a-z]+_){0,2}jsonb?(?:_[a-z]+){0,2})\([^)]*\)/i;
@@ -318,6 +319,127 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
     return Utils.joinSQLFragments([
       `SELECT INDEX_NAME FROM DBA_INDEXES WHERE TABLE_NAME='${this.quoteTable(tableName)}';`
     ]);
+  }
+
+  addIndexQuery(tableName, attributes, options, rawTablename) {
+    options = options || {};
+
+    if (!Array.isArray(attributes)) {
+      options = attributes;
+      attributes = undefined;
+    } else {
+      options.fields = attributes;
+    }
+
+    options.prefix = options.prefix || rawTablename || tableName;
+    if (options.prefix && typeof options.prefix === 'string') {
+      options.prefix = options.prefix.replace(/\./g, '_');
+      options.prefix = options.prefix.replace(/("|')/g, '');
+    }
+
+    const fieldsSql = options.fields.map(field => {
+      if (field instanceof Utils.SequelizeMethod) {
+        return this.handleSequelizeMethod(field);
+      }
+      if (typeof field === 'string') {
+        field = {
+          name: field
+        };
+      }
+      let result = '';
+
+      if (field.attribute) {
+        field.name = field.attribute;
+      }
+
+      if (!field.name) {
+        throw new Error(`The following index field has no name: ${util.inspect(field)}`);
+      }
+
+      result += this.quoteIdentifier(field.name);
+
+      if (this._dialect.supports.index.collate && field.collate) {
+        result += ` COLLATE ${this.quoteIdentifier(field.collate)}`;
+      }
+
+      if (this._dialect.supports.index.operator) {
+        const operator = field.operator || options.operator;
+        if (operator) {
+          result += ` ${operator}`;
+        }
+      }
+
+      if (this._dialect.supports.index.length && field.length) {
+        result += `(${field.length})`;
+      }
+
+      if (field.order) {
+        result += ` ${field.order}`;
+      }
+
+      return result;
+    });
+
+    if (!options.name) {
+      // Mostly for cases where addIndex is called directly by the user without an options object (for example in migrations)
+      // All calls that go through sequelize should already have a name
+      options = Utils.nameIndex(options, options.prefix);
+    }
+
+    options = Model._conformIndex(options);
+
+    if (!this._dialect.supports.index.type) {
+      delete options.type;
+    }
+
+    if (options.where) {
+      options.where = this.whereQuery(options.where);
+    }
+
+    if (typeof tableName === 'string') {
+      tableName = this.quoteIdentifiers(tableName);
+    } else {
+      tableName = this.quoteTable(tableName);
+    }
+
+    const concurrently = this._dialect.supports.index.concurrently && options.concurrently ? 'CONCURRENTLY' : undefined;
+    let ind;
+    if (this._dialect.supports.indexViaAlter) {
+      ind = [
+        'ALTER TABLE',
+        tableName,
+        concurrently,
+        'ADD'
+      ];
+    } else {
+      ind = ['CREATE'];
+    }
+
+    ind = ind.concat(
+      options.unique ? 'UNIQUE' : '',
+      options.type, 'INDEX',
+      !this._dialect.supports.indexViaAlter ? concurrently : undefined,
+      this.quoteIdentifiers(options.name),
+      this._dialect.supports.index.using === 1 && options.using ? `USING ${options.using}` : '',
+      !this._dialect.supports.indexViaAlter ? `ON ${tableName}` : undefined,
+      this._dialect.supports.index.using === 2 && options.using ? `USING ${options.using}` : '',
+      `(${fieldsSql.join(', ')})`,
+      this._dialect.supports.index.parser && options.parser ? `WITH PARSER ${options.parser}` : undefined,
+      this._dialect.supports.index.where && options.where ? options.where : undefined
+    );
+
+    // CREATE INDEX "xx_statistic_pos" ON "xx_statistic"("pos");
+    ind = [
+      'CREATE',
+      'INDEX',
+      this.quoteIdentifiers(options.name),
+      'ON',
+      tableName,
+      `(${fieldsSql.join(', ')})`,
+      ';'
+    ]
+
+    return _.compact(ind).join(' ');
   }
 
   showConstraintsQuery(table, constraintName) {
