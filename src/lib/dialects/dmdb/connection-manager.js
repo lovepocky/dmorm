@@ -65,9 +65,9 @@ class ConnectionManager extends AbstractConnectionManager {
       ...config.dialectOptions
     };
 
-    
+
     try {
-  
+
       let {
         host,
         port,
@@ -78,22 +78,28 @@ class ConnectionManager extends AbstractConnectionManager {
 
       const connectString = host.startsWith('dm://') ? host : `dm://${user}:${password}@${host}:${port}/${database}?useUnicode=true&characterEncoding=utf-8`
       console.log("------------连接--------------", connectString)
-      const pool = await this.lib.createPool({
-        connectString,
-        poolMin: config?.pool?.min || 0,
-        poolMax: config?.pool?.min || 5,
-      })
-      
-      const connection = await pool.getConnection()
-      
-      const errorHandler = e => {
-        // console.log("-------errorHandler---------", e)
-        // clean up connect & error event if there is error
-        connection.removeListener('connect', connectHandler);
-        connection.removeListener('error', connectHandler);
-      };
-  
-        connection.on('error', errorHandler);
+
+      let connection
+      if (false) {
+        const pool = await this.lib.createPool({
+          connectString,
+          poolMin: config?.pool?.min || 1,
+          poolMax: config?.pool?.min || 1,
+        })
+
+        connection = await pool.getConnection()
+      } else {
+        connection = await this.lib.getConnection(connectString)
+      }
+
+      // const errorHandler = e => {
+      //   // console.log("-------errorHandler---------", e)
+      //   // clean up connect & error event if there is error
+      //   connection.removeListener('connect', connectHandler);
+      //   connection.removeListener('error', connectHandler);
+      // };
+
+      // connection.on('error', errorHandler);
       // console.log("----------pool---------", pool)
       //
       // const connection = await new Promise((resolve, reject) => {
