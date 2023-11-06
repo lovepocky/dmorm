@@ -515,7 +515,9 @@ class DmDBQueryGenerator extends AbstractQueryGenerator {
     }
 
     if (attribute.comment) {
-      // template += ` COMMENT ${this.escape(attribute.comment)}`;
+      if (options?.context != 'addColumn') {
+        template += ` COMMENT ${this.escape(attribute.comment)}`;
+      }
     }
 
     if (attribute.first) {
