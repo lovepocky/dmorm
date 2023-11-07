@@ -764,7 +764,7 @@ class QueryInterface {
     options.type = QueryTypes.INSERT;
     options.instance = instance;
 
-    console.log("--------------------sql1---------------", sql.sql, sql.bind, options)
+    // console.log("--------------------sql1---------------", sql.sql, sql.bind, options)
     const results = await this.sequelize.query(sql, options);
     if (instance) results[0].isNewRecord = false;
 

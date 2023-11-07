@@ -95,7 +95,7 @@ function spliceStr(str, index, count, add) {
 exports.spliceStr = spliceStr;
 
 function camelize(str) {
-  console.log("--------------", str)
+  // console.log("--------------", str)
   return str.trim().replace(/[-_\s]+(.)?/g, (match, c) => c.toUpperCase());
 }
 exports.camelize = camelize;

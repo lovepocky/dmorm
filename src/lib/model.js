@@ -3801,7 +3801,7 @@ class Model {
    * @returns {Promise<Model>}
    */
   async save(options) {
-    console.log("-----------------准备插入数据----------------")
+    // console.log("-----------------准备插入数据----------------")
     if (arguments.length > 1) {
       throw new Error('The second argument was removed in favor of the options object.');
     }
@@ -3812,7 +3812,7 @@ class Model {
       validate: true
     });
     
-    console.log("-----------fields", options.fields)
+    // console.log("-----------fields", options.fields)
     if (!options.fields) {
       if (this.isNewRecord) {
         options.fields = Object.keys(this.constructor.rawAttributes);
