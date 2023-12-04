@@ -177,7 +177,9 @@ class ConnectionManager extends AbstractConnectionManager {
   }
 
   validate(connection) {
-    return connection
+    return connection && 
+      !connection.closed && 
+      !connection.socket._hadError
   }
 }
 
